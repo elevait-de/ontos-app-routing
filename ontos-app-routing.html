@@ -11,54 +11,54 @@
     </template>
 
     <script>
-        Polymer({
-            <!-- Settings -->
-            is: "ontos-app-routing",
+		Polymer({
+			<!-- Settings -->
+			is: "ontos-app-routing",
 
-            <!-- Properties -->
-            properties: {
-                useHashAsPath: {
-                    type: Boolean
-                },
-				authValid: {
-                	type: Boolean
-                },
-                loginPage: {
-                    type: String,
-                    value: "login"
-                },
-                defaultPage: {
-                    type: String,
-                    value: "default"
-                },
-				returnPath: {
-                	type: String
+			<!-- Properties -->
+			properties: {
+				useHashAsPath: {
+					type: Boolean
 				},
-                page: {
-                	type: String,
+				authValid: {
+					type: Boolean
+				},
+				loginPage: {
+					type: String,
+					value: "login"
+				},
+				defaultPage: {
+					type: String,
+					value: "default"
+				},
+				returnPath: {
+					type: String
+				},
+				page: {
+					type: String,
 					notify: true
-                },
+				},
 				path: {
-                	type: String
+					type: String
 				},
 				routeData: {
-                	type: Object,
+					type: Object,
 					notify: true
 				},
 				routeTail: {
-                	type: Object,
+					type: Object,
 					notify: true
 				}
-            },
+			},
 
-            <!-- Observers -->
-            observers: [
+			<!-- Observers -->
+			observers: [
 				"observeRouteData(routeData)",
-            	"observeRoutePath(route.path)",
+				"observeRoutePath(route.path)",
 				"redirectApp(path, authValid)"
-            ],
-			observeRouteData(routeData) {
-            	// redirect to login or default if there is no page
+			],
+			observeRouteData: function(routeData) {
+				// redirect to login or default if there is no page
 				if(!routeData.page) {
 					var firstPage = this.authValid ? this.defaultPage : this.loginPage;
 					this.replaceCurrentPage(firstPage);
@@ -68,49 +68,49 @@
 					this.set("page", routeData.page);
 				}
 			},
-			observeRoutePath(routePath) {
-            	// this debounces multiple path changes by the app route component
-            	this.set("path", routePath);
-            },
-			redirectApp(path, authValid) {
-            	// prevent navigation to login if the auth is still valid
+			observeRoutePath: function(routePath) {
+				// this debounces multiple path changes by the app route component
+				this.set("path", routePath);
+			},
+			redirectApp: function(path, authValid) {
+				// prevent navigation to login if the auth is still valid
 				if(path.startsWith("/"+this.loginPage) && authValid == true) {
 					// instead return to a path that was tried to access before login or the default page
 					if(this.returnPath) this.replaceCurrentPath(this.returnPath);
 					else this.replaceCurrentPage(this.defaultPage);
 				}
 
-            	// prevent navigation to any page but login if the auth is invalid
-            	if(!path.startsWith("/"+this.loginPage) && authValid == false) {
+				// prevent navigation to any page but login if the auth is invalid
+				if(!path.startsWith("/"+this.loginPage) && authValid == false) {
 					// instead save this path to return after login and go to login
 					this.set("returnPath", path);
 					this.replaceCurrentPage(this.loginPage);
-                }
-            },
+				}
+			},
 
-            <!-- Functions -->
-			replaceCurrentPage(currentPage) {
+			<!-- Functions -->
+			replaceCurrentPage: function(currentPage) {
 				this.replaceCurrentPath("/"+currentPage);
 			},
-			replaceCurrentPath(currentPath) {
+			replaceCurrentPath: function(currentPath) {
 				var _currentPath = (this.useHashAsPath ? "#" : "") + currentPath;
 				history.replaceState({}, _currentPath, _currentPath);
 				this.updateRoutePath(currentPath);
-            },
-			pushNextPage(nextPage) {
-            	this.pushNextPath("/"+nextPage);
 			},
-            pushNextPath(nextPath) {
+			pushNextPage: function(nextPage) {
+				this.pushNextPath("/"+nextPage);
+			},
+			pushNextPath: function(nextPath) {
 				var _nextPath = (this.useHashAsPath ? "#" : "") + nextPath;
 				history.pushState({}, _nextPath, _nextPath);
 				this.updateRoutePath(nextPath);
-            },
-			updateRoutePath(path) {
-            	if(this.route.path != path) {
+			},
+			updateRoutePath: function(path) {
+				if(this.route.path != path) {
 					this.set("route.path", path);
 					this.notifyPath("route.path");
 				}
 			}
-        });
+		});
     </script>
 </dom-module>
