@@ -31,6 +31,10 @@
 					type: String,
 					value: "default"
 				},
+				exposedPages: {
+				    type: Array,
+                    value: []
+                },
 				returnPath: {
 					type: String
 				},
@@ -73,15 +77,19 @@
 				this.set("path", routePath);
 			},
 			redirectApp: function(path, authValid) {
+				// find the base of the path
+                var pathBase = path.split("/")[1];
+
 				// prevent navigation to login if the auth is still valid
-				if(path.startsWith("/"+this.loginPage) && authValid == true) {
+				if(pathBase == this.loginPage && authValid == true) {
 					// instead return to a path that was tried to access before login or the default page
 					if(this.returnPath) this.replaceCurrentPath(this.returnPath);
 					else this.replaceCurrentPage(this.defaultPage);
 				}
 
-				// prevent navigation to any page but login if the auth is invalid
-				if(!path.startsWith("/"+this.loginPage) && authValid == false) {
+				// prevent navigation to any page but exposed pages if the auth is invalid
+				var accessesExposedPage = (pathBase == this.loginPage || this.exposedPages.indexOf(pathBase) != -1);
+				if(!accessesExposedPage && authValid == false) {
 					// instead save this path to return after login and go to login
 					this.set("returnPath", path);
 					this.replaceCurrentPage(this.loginPage);
